@@ -28,7 +28,7 @@ app.use(
 
 
 /** Kobler til SQLite-database */
-const db = new sqlite3.Database("minNyeDatabase.db", (err) => {
+const db = new sqlite3.Database("oppdrag.db", (err) => {
     if (err) {
         console.error("Feil ved tilkobling til database:", err.message);
     } else {
@@ -47,18 +47,18 @@ app.get("/", (req, res) => {
  * Lagrer brukeren i databasen med kryptert passord
  */
 app.post("/", async (req, res) => {
-    const { oppdragnavn, oppdraginfo, tlf, navn, registrart } = req.body;
-    if (!oppdragnavn || !oppdraginfo || !tlf || !navn || !registrart) {
+    const { oppdragnavn, oppdraginfo, tlf, navn, registrert } = req.body;
+    if (!oppdragnavn || !oppdraginfo || !tlf || !navn || !registrert) {
         return res.redirect("/?error=Mangler data fra skjema");
     }
-    const sql = "INSERT INTO Bruker (Navn, Epost, Passord) VALUES (?, ?, ?)";
-    const hashedPassword = await bcrypt.hash(passord, 10);
-    db.run(sql, [navn, epost, hashedPassword], function (err) {
+    const sql = "INSERT INTO Oppdrag (oppdragnavn, oppdraginfo, tlf, navn, registrert) VALUES (?, ?, ?, ?, ?)";
+
+    db.run(sql, [oppdragnavn, oppdraginfo, tlf, navn, registrert], function (err) {
         if (err) {
             console.error("Databasefeil:", err.message);
             return res.redirect("/login?error=En uventet feil har oppstått");
         }
-        req.session.user = { id: this.lastID, navn, epost };
+        req.session.user = { id: this.lastID, oppdragnavn, oppdraginfo, tlf, navn, registrert };
         res.redirect("/?melding=Bruker opprettet");
     });
 });
